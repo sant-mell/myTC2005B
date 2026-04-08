@@ -178,7 +178,9 @@ function isPalindrome(string){
  return invertido == string;
 }
 
-function sortStrings
+function sortStrings(arrStrings){
+  return bubbleSort(arrStrings);
+}
 
 export {
     firstNonRepeating,
@@ -191,10 +193,9 @@ export {
     factorize,
     deduplicate,
     findShortestString,
-  
     isPalindrome,
-    /*sortStrings,
-    stats,
+    sortStrings,
+    /*stats,
     popularString,
     isPowerOf2,
     sortDescending,*/
