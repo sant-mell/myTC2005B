@@ -20,7 +20,7 @@ function firstNonRepeating(string){
                 break;
             }
         }
-        if (!found) letters.push({char: string[i], count: 1});
+        if (!found) letters.push({char: string[i], count: 1});//si no ha sido encontrada, se hace un push en letters
     }
 
     for (let index in letters){
@@ -37,7 +37,7 @@ function firstNonRepeating(string){
 function bubbleSort(array){
     for (let i=0; i<array.length-1;i++)
         for (let j=0; j < array.length-1-i; j++){
-            if(array[j]>array[j+1]){
+            if(array[j]>array[j+1]){ //Si j es mayor que el siguiente, se intercambian
                 let x = array[j];
                 array [j]= array [j+1];
                 array [j+1] = x;
@@ -54,7 +54,7 @@ function bubbleSort(array){
 function invertArray (array) {
   let invertedArray = [];
   for(let i=0;i<array.length; i++){
-    invertedArray [i] = array[array.length-i-1]
+    invertedArray [i] = array[array.length-i-1]//agrega de ultimo al primero y asi sigue
   }
   return invertedArray;
 }
@@ -67,7 +67,7 @@ const arr = [1,2,3,4,5,6,7,8,9,10]
 function invertArrayInplace(array) {
   let temp = null
     for(let i=0; i<array.length/2; i++){
-        temp = array[i];
+        temp = array[i]; //se intercambia el primero al ultimo con un temporal
         array[i] = array[array.length-1-i]
         array[array.length-1-i] = temp
   }
@@ -88,10 +88,10 @@ function capitalize(string){
 
     if (caracter === " ") {
       resultado += caracter;
-      inicioDePalabra = true;
+      inicioDePalabra = true; //encuentra donde capitalizar
     } else {
       if (inicioDePalabra) {
-        resultado += caracter.toUpperCase();
+        resultado += caracter.toUpperCase(); //capitaliza la letra de la palabra
         inicioDePalabra = false;
       } else {
         resultado += caracter;
@@ -117,20 +117,30 @@ function mcd(a, b) {
 
 // Crea una funcion llamada hackerSpeak que cambie una cadena de texto
 // a Hacker Speak.
-function hackerSpeak(string){
-  const map = {
+function hackerSpeak(string) {
+  const replacements = {
     a: "4",
-    e: "3",
+    e: "3", //asigna la letra leet de cada letra
     i: "1",
     o: "0",
     s: "5",
   };
 
-  return string
-    .split("")
-    .map((char) => (map[char] ? map[char] : char))
-    .join("");
+  let result = "";
+
+  for (let i = 0; i < string.length; i++) {
+    const currentChar = string[i];
+
+    if (replacements[currentChar] !== undefined) { //si tiene leet...
+      result += replacements[currentChar]; //...se reemplaza
+    } else {
+      result += currentChar; //si no, se queda igual
+    }
+  }
+
+  return result;
 }
+
 
 //console.log(hackerSpeak("leetcoding"))
 
@@ -140,7 +150,7 @@ function factorize(num) {
   const factors = [];
 
   for (let i = 1; i <= num; i++) {
-    if (num % i === 0) {
+    if (num % i === 0) { //si es divisible, es factor
       factors.push(i);
     }
   }
@@ -160,14 +170,14 @@ function deduplicate(arr) {
     let exists = false;
 
     for (let j = 0; j < result.length; j++) {
-      if (arr[i] === result[j]) {
+      if (arr[i] === result[j]) { //si ya esta en result, se marca como existente
         exists = true;
         break;
       }
     }
 
     if (!exists) {
-      result.push(arr[i]);
+      result.push(arr[i]); //si no existe, se pushea a result
     }
   }
 
@@ -184,7 +194,7 @@ function findShortestString(arr){
   }
   let shortest = arr[0].length;
   for (let i=1;i<arr.length;i++){
-    if (arr[i].length < arr[shortest].length){
+    if (arr[i].length < arr[shortest].length){ //si el de ahora es mas corto, entonces se le asigna el mas corto
         shortest = i;
     } 
 
@@ -199,22 +209,22 @@ function findShortestString(arr){
 function isPalindrome(string){
   let pila = [];
  for(let i=0;i<string.length;i++){
-  pila.push(string[i])
+  pila.push(string[i]) //se pone en una pila
  }
- let invertido = '';
- while (pila.length > 0){
-  invertido = invertido + pila.pop()
- }
- return invertido == string;
+let invertido = '';
+while (pila.length > 0){
+  invertido = invertido + pila.pop() //se saca y queda invertido 
 }
-
+return invertido == string;
+ //return invertedArray(string) === string;
+}
 //console.log(isPalindrome("ana"))
 //console.log(isPalindrome("perro"))
 
 // Escribe una funcion llamada sortStrings que tome una lista de cadenas de
 // texto y devuelva una nueva lista en orden alfabetico.
 function sortStrings(arrStrings){
-  return bubbleSort(arrStrings);
+  return bubbleSort(arrStrings); //bubblesort con strings, se usa el codigo ascii
 }
 
 //console.log(sortStrings(["one", "two", "thr", "fou"]))
@@ -231,16 +241,16 @@ function stats(arr){
   let moda = arr[0];
 
   for (let i=0; i<arr.length; i++){
-    suma = suma + arr[i];
-    promedio = suma/arr.length;
+    suma = suma + arr[i]; //se suma para el promedio
+    promedio = suma/arr.length; //se calcula el promedio
   }
   for (let j=0; j<arr.length; j++){
     if (count[arr[j]] === undefined){
       count[arr[j]] = 1;
     } else {
-      count[arr[j]]++;
+      count[arr[j]]++; //se cuenta para la moda
     }
-    if (count[arr[j]] > count[moda]){
+    if (count[arr[j]] > count[moda]){ //si el numero es mas frecuente, ese es la moda
       moda = arr[j];
     }
   }
@@ -256,8 +266,8 @@ function popularString(arr){
   let popular = "";
 
   for (let str of arr) {
-    count[str] = (count[str] || 0) + 1;
-    if (count[str] > maxCount) {
+    count[str] = (count[str] || 0) + 1; //se cuenta la frecuencia
+    if (count[str] > maxCount) {  //si es mas frecuente la actual, se actualiza
       maxCount = count[str];
       popular = str;
     }
@@ -274,7 +284,7 @@ function isPowerOf2(num){
   if (num <= 0) {
     return false;
   }
-  for (let i = 1; i <= num; i *= 2) {
+  for (let i = 1; i <= num; i *= 2) { //se va multiplicando por dos y revisa si es poder
     if (i === num) {
       return true;
     }
@@ -286,7 +296,7 @@ function isPowerOf2(num){
 // Escribe una funcion llamada sortDescending que tome una lista de numeros y
 // devuelva una nueva lista con todos los numeros en orden descendente.
 function sortDescending(arr){
-  return bubbleSort(arr).reverse(); //makes a bubble sort and then reverses it
+  return bubbleSort(arr).reverse(); //se usa el codigo anterior para sortear y para reversearlo
 }
 
 //console.log(sortDescending([9, 6, 15, 3, 12]))
