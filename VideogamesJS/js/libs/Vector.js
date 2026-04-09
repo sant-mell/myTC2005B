@@ -26,11 +26,11 @@ class Vector {
     }
 
     magnitude() {
-        return 0;
+        return Math.sqrt(this.x**2 + this.y **2);
     }
 
     squareLength() {
-        return 0;
+        return this.x**2+this.y**2;
     }
 
     normalize() {
