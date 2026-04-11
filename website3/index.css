@@ -1,11 +1,10 @@
-@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;700&display=swap');
 
 body {
-  font-family: "Press Start 2P", system-ui;
+  font-family: "Ubuntu", sans-serif;
   display: flex;
   flex-direction: column;
-    align-items: center;
-    vertical-align: center;
+  align-items: center;
   background-image: url("Gemini_Generated_Image_6d839q6d839q6d83.png");
 }
 
@@ -28,6 +27,13 @@ img {
   margin: 6px 0;
   max-width: 100%;
   height: auto;
+  transition: transform 220ms ease, box-shadow 220ms ease, filter 220ms ease;
+}
+
+img:hover {
+  transform: translateY(-4px) scale(1.02);
+  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.3);
+  filter: saturate(1.06);
 }
 
 .ufo-ship {
@@ -39,6 +45,8 @@ img {
 
 .ufo-ship:hover {
   animation: ufo-spin 700ms linear;
+  box-shadow: none;
+  filter: none;
 }
 
 @keyframes ufo-spin {
@@ -56,12 +64,21 @@ a {
   padding: 2px 6px;
 }
 
-.enlases-secion {
+.enlases-secsion {
   margin-bottom: 10px;
 }
 
-.imajen-secion2 {
+.imajen-secsion2 {
   display: flex;
   justify-content: center;
   margin-bottom: 10px;
+}
+
+.pie-pajina {
+  border: 2px solid #222;
+  background: #fff3b0;
+  color: #111;
+  padding: 8px;
+  text-align: center;
+  font-weight: bold;
 }
