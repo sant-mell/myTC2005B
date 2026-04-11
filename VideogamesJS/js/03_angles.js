@@ -63,7 +63,7 @@ function drawScene(newTime) {
     );
 
     // Update vales for next frame
-    angle += 0.001 * deltaTime ;
+    angle += 0.01 * deltaTime ;
     // TODO: Use mathematical functions to set the actual position of the object
     box.x = radius * Math.cos(angle);
     box.y = radius * Math.sin(angle);
