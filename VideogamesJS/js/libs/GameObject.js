@@ -39,7 +39,12 @@ class GameObject {
         this.spriteRect = undefined;
 
         // Intialize a collider with the default object size
-        this.setCollider(width, height);
+        this.setCollider(width, height)
+        this.xOffset = width / 2;
+        this.yOffset = height / 2;
+        this.colliderWidth = width;
+        this.colliderHeight = height;
+        this.updateCollider();
     }
 
     setSprite(imagePath, rect) {

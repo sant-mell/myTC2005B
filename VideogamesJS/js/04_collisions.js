@@ -22,6 +22,20 @@ let oldTime;
 
 let playerSpeed = 10;
 
+function boxOverlap(obj1, obj2) {
+    const left1 = obj1.position.x - obj1.halfSize.x;
+    const right1 = obj1.position.x + obj1.halfSize.x;
+    const top1 = obj1.position.y - obj1.halfSize.y;
+    const bottom1 = obj1.position.y + obj1.halfSize.y;
+
+    const left2 = obj2.position.x - obj2.halfSize.x;
+    const right2 = obj2.position.x + obj2.halfSize.x;
+    const top2 = obj2.position.y - obj2.halfSize.y;
+    const bottom2 = obj2.position.y + obj2.halfSize.y;
+
+    return left1 < right2 && right1 > left2 && top1 < bottom2 && bottom1 > top2;
+}
+
 // Class for the main character in the game
 class Player extends GameObject {
     constructor(position, width, height, color, sheetCols) {
@@ -79,6 +93,7 @@ class Game {
     update(deltaTime) {
         // Move the player
         this.player.update(deltaTime);
+        this.player.updateCollider;
 
         // Check collision against other objects
         for (let actor of this.actors) {
