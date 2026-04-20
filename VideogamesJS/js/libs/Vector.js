@@ -18,19 +18,19 @@ class Vector {
     }
 
     minus(other) {
-        return new Vector(other.x - this.x, other.y - this.y);
+        return new Vector(this.x - other.x, this.y - other.y);
     }
 
     times(scalar) {
-        return new Vector(scalar*this.x, scalar*this.y );
+        return new Vector(this.x * scalar, this.y * scalar);
     }
 
     magnitude() {
-        return Math.sqrt(this.x**2 + this.y **2);
+        return Math.sqrt(this.x ** 2 + this.y ** 2);
     }
 
     squareLength() {
-        return this.x**2+this.y**2;
+        return this.x ** 2 + this.y ** 2;
     }
 
     normalize() {
@@ -46,12 +46,12 @@ class Vector {
 /*
  * Test the Vector class
  */
-let p = new Vector(0, 8);
-let v = new Vector(1, 1);
-p = p.plus(v.times(1));
-console.log("New position: ", p);
-console.log("plus: ", p.plus(v));
-console.log("minus: ", p.minus(v));
-console.log("times: ", p.times(3));
-console.log("magnitude: ", p.magnitude());
-console.log("squareLength: ", p.squareLength());
+//let p = new Vector(0, 8);
+//let v = new Vector(1, 1);
+//p = p.plus(v.times(1));
+//console.log("New position: ", p);
+//console.log("plus: ", p.plus(v));
+//console.log("minus: ", p.minus(v));
+//console.log("times: ", p.times(3));
+//console.log("magnitude: ", p.magnitude());
+//console.log("squareLength: ", p.squareLength());
