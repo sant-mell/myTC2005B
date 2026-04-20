@@ -49,4 +49,4 @@ function randomRange(size, start) {
     return Math.floor(Math.random() * size) + ((start === undefined) ? 0 : start);
 }
 
-//export { boxOverlap, randomRange };   
+//export { boxOverlap, randomRange };
