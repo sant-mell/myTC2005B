@@ -1,5 +1,5 @@
 /*
- * Detection of collisions between boxes
+ * Simple implementation of the PONG game
  *
  * Gilberto Echeverria
  * 2025-03-13
@@ -20,7 +20,22 @@ let game;
 // Variable to store the time at the previous frame
 let oldTime;
 
-let playerSpeed = 100;
+let paddleSpeed = 15;
+let ballSpeed = 5;
+
+class Ball extends GameObject {
+    constructor(position, width, height, color, sheetCols) {
+        super(position, width, height, color, "ball", sheetCols);
+        this.velocity = new Vector(1, 1);
+    }
+
+    update(deltaTime) {
+        this.velocity = this.velocity.normalize().times(ballSpeed);
+        this.position = this.position.plus(this.velocity.times(deltaTime));
+        this.updateCollider();
+    }
+    
+}
 
 // Class for the main character in the game
 class Paddle extends GameObject {
@@ -28,6 +43,7 @@ class Paddle extends GameObject {
         super(position, width, height, color, "player", sheetCols);
         this.velocity = new Vector(0, 0);
 
+        // Structure with the directions the object can move
         this.motion = {
             up: {
                 axis: "y",
@@ -36,7 +52,7 @@ class Paddle extends GameObject {
             down: {
                 axis: "y",
                 sign: 1,
-            }
+            },
         }
 
         // Keys pressed to move the player
@@ -54,10 +70,12 @@ class Paddle extends GameObject {
             this.velocity[axis] += sign;
         }
         // TODO: Normalize the velocity to avoid greater speed on diagonals
+        this.velocity = this.velocity.normalize().times(paddleSpeed);
 
         this.position = this.position.plus(this.velocity.times(deltaTime));
 
         this.clampWithinCanvas();
+        this.updateCollider();
     }
 
     clampWithinCanvas() {
@@ -81,87 +99,90 @@ class Game {
         this.initObjects();
     }
 
+    // Create the objects in the game
     initObjects() {
-        this.paddleLeft = new Paddle(new Vector(50, canvasHeight / 2 - 30), 40, 100, "red");
-        this.paddleRight = new Paddle(new Vector(canvasWidth - 50, canvasHeight / 2 - 30), 40, 100, "blue");
+        this.paddleLeft = new Paddle(new Vector(50, canvasHeight / 2), 20, 150, "red");
+        this.paddleRight = new Paddle(new Vector(canvasWidth - 50, canvasHeight / 2), 20, 150, "blue");
 
-        this.actors = [];
-        for (let i=0; i<10; i++) {
-            this.addBox();
-        }
+        this.ball = new Ball(new Vector(canvasWidth / 2, canvasHeight / 2), 20, 20, "black");
+
+        this.wallUp = new GameObject(new Vector(canvasWidth / 2, 0), canvasWidth, 20, "yellow")
+        this.wallDown = new GameObject(new Vector(canvasWidth / 2, canvasHeight), canvasWidth, 20, "yellow")
+
+        this.goalLeft = new GameObject(new Vector(0, canvasHeight / 2), 20, canvasHeight, "green")
+        this.goalRight = new GameObject(new Vector(canvasWidth, canvasHeight / 2), 20, canvasHeight, "green")
+
+        this.actors = [
+            this.paddleLeft,
+            this.paddleRight,
+            this.ball,
+            this.wallUp,
+            this.wallDown,
+            this.goalLeft,
+            this.goalRight
+        ];
     }
 
     draw(ctx) {
         for (let actor of this.actors) {
             actor.draw(ctx);
         }
-        this.paddleLeft.draw(ctx);
-        this.paddleRight.draw(ctx);
     }
 
     update(deltaTime) {
-        // Move the player
+        // Move the paddles
         this.paddleLeft.update(deltaTime);
         this.paddleRight.update(deltaTime);
+        this.ball.update(deltaTime);
 
-        // Check collision against other objects
-        for (let actor of this.actors) {
-          //  if (boxOverlap(this.paddleLeft, actor)) {
-          //      actor.color = "yellow";
-           // } else {
-           //     actor.color = "grey";
-           // }
-        }
-    }
+        if (boxOverlap(this.paddleLeft, this.ball) ||
+            boxOverlap(this.paddleRight, this.ball)){
+                this.ball.velocity.x *= -1;
+            }
 
-    addBox() {
-        // TODO: Use the randomRange function to make these values different
-        // Create boxes with minimum size 50, and up to 50 pixels more
-        const size = 50;
-        // Define a random position for the box, within the canvas
-        const posX = 60;
-        const posY = 70;
-        const box = new GameObject(new Vector(posX, posY), size, size, "grey");
-        // Set a property to indicate if the box should be destroyed or not
-        box.destroy = false;
-        this.actors.push(box);
+        if (boxOverlap(this.wallDown, this.ball) ||
+            boxOverlap(this.wallUp, this.ball)){
+                this.ball.velocity.y *= -1;
+            }
     }
 
     createEventListeners() {
         window.addEventListener('keydown', (event) => {
             if (event.key == 'w') {
-                this.addKey(this.paddleLeft, 'up');
-            } else if (event.key == 's') {
-                this.addKey(this.paddleLeft, 'down');
-            } else if (event.key == 'ArrowUp') {
-                this.addKey(this.paddleRight, 'up');
-            } else if (event.key == 'ArrowDown') {
-                this.addKey(this.paddleRight, 'down');
+                this.addKey('up', this.paddleLeft);
+            } if (event.key == 's') {
+                this.addKey('down', this.paddleLeft);
+            } if (event.key == 'ArrowUp') {
+                this.addKey('up', this.paddleRight);
+            } if (event.key == 'ArrowDown') {
+                this.addKey('down', this.paddleRight);
             }
         });
 
         window.addEventListener('keyup', (event) => {
             if (event.key == 'w') {
-                this.delKey(this.paddleLeft, 'up');
-            } else if (event.key == 's') {
-                this.delKey(this.paddleLeft, 'down');
-            } else if (event.key == 'ArrowUp') {
-                this.delKey(this.paddleRight, 'up');
-            } else if (event.key == 'ArrowDown') {
-                this.delKey(this.paddleRight, 'down');
+                this.delKey('up', this.paddleLeft);
+            } if (event.key == 's') {
+                this.delKey('down', this.paddleLeft);
+            } if (event.key == 'ArrowUp') {
+                this.delKey('up', this.paddleRight);
+            } if (event.key == 'ArrowDown') {
+                this.delKey('down', this.paddleRight);
             }
         });
     }
 
-    addKey(paddle, direction) {
-        if (!paddle.keys.includes(direction)) {
-            paddle.keys.push(direction);
+    // Add the key pressed to the 'keys' array of the object sent
+    addKey(direction, object) {
+        if (!object.keys.includes(direction)) {
+            object.keys.push(direction);
         }
     }
 
-    delKey(paddle, direction) {
-        if (paddle.keys.includes(direction)) {
-            paddle.keys.splice(paddle.keys.indexOf(direction), 1);
+    // Remove the key pressed from the 'keys' array of the object sent
+    delKey(direction, object) {
+        if (object.keys.includes(direction)) {
+            object.keys.splice(object.keys.indexOf(direction), 1);
         }
     }
 }
@@ -187,7 +208,7 @@ function main() {
 // Main loop function to be called once per frame
 function drawScene(newTime) {
     // Compute the time elapsed since the last frame, in milliseconds
-    let deltaTime = 10;
+    let deltaTime = 1;
 
     // Clean the canvas so we can draw everything again
     ctx.clearRect(0, 0, canvasWidth, canvasHeight);
