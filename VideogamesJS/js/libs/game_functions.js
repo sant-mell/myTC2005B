@@ -39,7 +39,7 @@ function boxOverlap(obj1, obj2) {
  * Generate a random integer in the range [start, start + size - 1]
  *
  * Arguments:
- * - size: The size of the range (number of possible values)
+ * - size: The size of the range (number of possible v alues)
  * - start: The starting value of the range (default is 0)
  *
  * Returns:

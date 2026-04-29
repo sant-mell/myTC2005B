@@ -18,10 +18,11 @@ let ctx;
 let game;
 
 // Variable to store the time at the previous frame
-let oldTime;
-
-let paddleSpeed = 15;
-let ballSpeed = 5;
+let oldTime = 0;
+let initialSpeed = 0.5;
+let paddleSpeed = 0.5;
+let ballSpeed = 0.5;
+let speedIncrease = 1.05;
 
 class Ball extends GameObject {
     constructor(position, width, height, color, sheetCols) {
@@ -34,7 +35,30 @@ class Ball extends GameObject {
         this.position = this.position.plus(this.velocity.times(deltaTime));
         this.updateCollider();
     }
-    
+
+  reset(){
+    this.position.x = canvasWidth /2;
+    this.position.y = canvasHeight/2;
+    this.velocity.x = 0;
+    this.velocity.y = 0;
+  }
+    //start ball motion
+  serve(){
+    //get a random angle between -Pi/2 and Pi/2
+    let angle = Math.random() * Math.PI / 2 - Math.PI / 4;
+    this.velocity = new Vector(Math.cos(angle), Math.sin(angle));
+    ballSpeed = initialSpeed;
+    //select random direction
+    if (Math.random() < 0.5) {
+        this.velocity.x *= -1;
+    }
+  }
+}
+
+class Score extends GameObject{
+    constructor(position, width, height, color, sheetCols){
+        super(position, width, height, color, "score", sheetCols);
+    }
 }
 
 // Class for the main character in the game
@@ -97,12 +121,24 @@ class Game {
     constructor() {
         this.createEventListeners();
         this.initObjects();
+
+        this.scoreLeft = 0;
+        this.scoreRight = 0;
+
+        //score textlabel
+        this.scoreLabelLeft = new TextLabel(canvasWidth / 4, 100, "40px Arial", "red");
+        this.scoreLabelRight = new TextLabel(3 * canvasWidth / 4, 100, "40px Arial", "blue");
+        this.timeLabel = new TextLabel(canvasWidth / 2 - 50, 100, "40px Arial", "black");
+        //detect if were playing
+        this.inPlay = false;
+        //time imit for the game in milliseconds
+        this.timeRemaining = 5000;
     }
 
     // Create the objects in the game
     initObjects() {
-        this.paddleLeft = new Paddle(new Vector(50, canvasHeight / 2), 20, 150, "red");
-        this.paddleRight = new Paddle(new Vector(canvasWidth - 50, canvasHeight / 2), 20, 150, "blue");
+        this.paddleLeft = new Paddle(new Vector(50, canvasHeight / 2), 20, 130, "red");
+        this.paddleRight = new Paddle(new Vector(canvasWidth - 50, canvasHeight / 2), 20, 130, "blue");
 
         this.ball = new Ball(new Vector(canvasWidth / 2, canvasHeight / 2), 20, 20, "black");
 
@@ -124,6 +160,15 @@ class Game {
     }
 
     draw(ctx) {
+            //draw scores
+        this.scoreLabelLeft.draw(ctx, `${this.scoreLeft}`);
+        this.scoreLabelRight.draw(ctx, `${this.scoreRight}`);
+
+        let mins = Math.floor(this.timeRemaining / 60000);
+        let secs = Math.floor((this.timeRemaining % 60000) / 1000);
+        this.timeLabel.draw(ctx, `${mins}:${secs}`);
+
+        //draw actors
         for (let actor of this.actors) {
             actor.draw(ctx);
         }
@@ -131,19 +176,41 @@ class Game {
 
     update(deltaTime) {
         // Move the paddles
+        this.timeRemaining -= deltaTime;
+        if(this.timeRemaining<=0){
+            this.timeRemaining = 0;
+            return;
+        }
+
         this.paddleLeft.update(deltaTime);
         this.paddleRight.update(deltaTime);
         this.ball.update(deltaTime);
 
+        
+
         if (boxOverlap(this.paddleLeft, this.ball) ||
             boxOverlap(this.paddleRight, this.ball)){
                 this.ball.velocity.x *= -1;
+                ballSpeed *= speedIncrease;
             }
 
         if (boxOverlap(this.wallDown, this.ball) ||
             boxOverlap(this.wallUp, this.ball)){
                 this.ball.velocity.y *= -1;
+                ballSpeed *= speedIncrease;
             }
+        if (boxOverlap(this.goalLeft, this.ball)) {
+                this.ball.reset();
+                this.scoreRight += 1;
+                this.inPlay = false;
+
+            }
+        if (boxOverlap(this.goalRight, this.ball)) {
+                this.ball.reset();
+                this.scoreLeft += 1;   
+                this.inPlay = false;         
+            }
+        
     }
 
     createEventListeners() {
@@ -157,7 +224,13 @@ class Game {
             } if (event.key == 'ArrowDown') {
                 this.addKey('down', this.paddleRight);
             }
-        });
+
+            if (event.key == ' ') {
+                if(!this.inPlay){
+                this.ball.serve();
+                this.inPlay = true;
+            }
+        }        });
 
         window.addEventListener('keyup', (event) => {
             if (event.key == 'w') {
@@ -208,7 +281,7 @@ function main() {
 // Main loop function to be called once per frame
 function drawScene(newTime) {
     // Compute the time elapsed since the last frame, in milliseconds
-    let deltaTime = 1;
+    let deltaTime = newTime - oldTime;
 
     // Clean the canvas so we can draw everything again
     ctx.clearRect(0, 0, canvasWidth, canvasHeight);
@@ -220,3 +293,4 @@ function drawScene(newTime) {
     oldTime = newTime;
     requestAnimationFrame(drawScene);
 }
+

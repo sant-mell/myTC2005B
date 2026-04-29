@@ -18,9 +18,12 @@ let ctx;
 let game;
 
 // Variable to store the time at the previous frame
-let oldTime;
+let oldTime = 0;
 
 let playerSpeed = 0.5;
+
+let animationTime = 0;
+let rectX = 0;
 
 // Class for the main character in the game
 class Player extends GameObject {
@@ -62,7 +65,7 @@ class Player extends GameObject {
             this.velocity[axis] += sign;
         }
         // TODO: Normalize the velocity to avoid greater speed on diagonals
-
+        this.velocity = this.velocity.normalize().times(playerSpeed);
         this.position = this.position.plus(this.velocity.times(deltaTime));
 
         this.clampWithinCanvas();
@@ -90,8 +93,9 @@ class Game {
     }
 
     initObjects() {
-        this.player = new Player(new Vector(canvasWidth / 2, canvasHeight / 2), 60, 60, "red");
-
+        this.player = new Player(new Vector(canvasWidth / 2, canvasHeight / 2), 120, 130, "red");
+        //set sprite for game object
+        this.player.setSprite("../assets/sprites/link_sprite_sheet.png",new Rect(0,0,120,130));
         this.actors = [];
         for (let i=0; i<10; i++) {
             this.addBox();
@@ -106,6 +110,16 @@ class Game {
     }
 
     update(deltaTime) {
+        //animation
+        animationTime += deltaTime;
+        if (animationTime > 500) {
+            this.player.spriteRect.x == this.player.spriteRect.width;
+            if(this.player.spriteRect.x >= 600) {
+                this.player.spriteRect.x = 0;
+            }
+            
+            animationTime = 0;
+        }
         // Move the player
         this.player.update(deltaTime);
 
@@ -122,17 +136,19 @@ class Game {
     addBox() {
         // TODO: Use the randomRange function to make these values different
         // Create boxes with minimum size 50, and up to 50 pixels more
-        const size = 50;
+        const size = randomRange(100, 50);
         // Define a random position for the box, within the canvas
-        const posX = 60;
-        const posY = 70;
+        const posX = randomRange(canvasWidth);
+        const posY = randomRange(canvasHeight);
         const box = new GameObject(new Vector(posX, posY), size, size, "grey");
+        //add box sprite
+        box.setSprite("../assets/sprites/maria.png");
         // Set a property to indicate if the box should be destroyed or not
         box.destroy = false;
         this.actors.push(box);
     }
 
-    createEventListeners() {
+ createEventListeners() {
         window.addEventListener('keydown', (event) => {
             if (event.key == 'w') {
                 this.addKey('up');
@@ -147,7 +163,7 @@ class Game {
 
         window.addEventListener('keyup', (event) => {
             if (event.key == 'w') {
-                this.delKey('up');
+               this.delKey('up');
             } else if (event.key == 'a') {
                 this.delKey('left');
             } else if (event.key == 's') {
@@ -172,6 +188,7 @@ class Game {
 }
 
 
+
 // Starting function that will be called from the HTML page
 function main() {
     // Get a reference to the object with id 'canvas' in the page
@@ -192,7 +209,7 @@ function main() {
 // Main loop function to be called once per frame
 function drawScene(newTime) {
     // Compute the time elapsed since the last frame, in milliseconds
-    let deltaTime = 1;
+    let deltaTime = newTime-oldTime;
 
     // Clean the canvas so we can draw everything again
     ctx.clearRect(0, 0, canvasWidth, canvasHeight);
