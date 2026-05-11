@@ -122,6 +122,10 @@ class Game {
         this.createEventListeners();
         this.initObjects();
 
+        //initialize sound stuff
+        this.ping = document.createElement("audio");
+        this.ping.src = "../assets/audio/4387__noisecollector__pongblipe4.wav";
+
         this.scoreLeft = 0;
         this.scoreRight = 0;
 
@@ -132,7 +136,7 @@ class Game {
         //detect if were playing
         this.inPlay = false;
         //time imit for the game in milliseconds
-        this.timeRemaining = 5000;
+        this.timeRemaining = 150000;
     }
 
     // Create the objects in the game
@@ -192,17 +196,20 @@ class Game {
             boxOverlap(this.paddleRight, this.ball)){
                 this.ball.velocity.x *= -1;
                 ballSpeed *= speedIncrease;
+                this.ping.play();
             }
 
         if (boxOverlap(this.wallDown, this.ball) ||
             boxOverlap(this.wallUp, this.ball)){
                 this.ball.velocity.y *= -1;
                 ballSpeed *= speedIncrease;
+                this.ping.play();
             }
         if (boxOverlap(this.goalLeft, this.ball)) {
                 this.ball.reset();
                 this.scoreRight += 1;
                 this.inPlay = false;
+                this.ping.play();
 
             }
         if (boxOverlap(this.goalRight, this.ball)) {
@@ -294,3 +301,47 @@ function drawScene(newTime) {
     requestAnimationFrame(drawScene);
 }
 
+let cards = [
+    { name: "Ace of Spades",
+         value: 1 
+        },
+    { name: "2 of Hearts",
+         value: 2 
+        },
+    { name: "3 of Diamonds", 
+      value: 3 
+
+    },
+    { name: "4 of Clubs",
+         value: 4 
+        },
+    { name: "5 of Spades",
+         value: 5 
+        },
+    { name: "6 of Hearts",
+         value: 6 
+        },
+    { name: "7 of Diamonds", 
+      value: 7 
+
+    },
+    { name: "8 of Clubs",
+         value: 8 
+        },
+    { name: "9 of Spades",
+         value: 9 
+        },
+    { name: "10 of Hearts",
+         value: 10 
+        },
+    { name: "Jack of Diamonds", 
+      value: 11 
+
+    },
+    { name: "Queen of Clubs",
+         value: 12 
+        },
+    { name: "King of Spades",
+         value: 13 
+        }
+];
