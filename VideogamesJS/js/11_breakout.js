@@ -1,5 +1,5 @@
 /*
- * Simple implementation of the PONG game
+ * Simple implementation of the BREAKOUT game
  *
  * Gilberto Echeverria
  * 2025-03-13
@@ -22,7 +22,7 @@ let oldTime = 0;
 let initialSpeed = 0.5;
 let paddleSpeed = 0.5;
 let ballSpeed = 0.5;
-let speedIncrease = 1.05;
+let speedIncrease = 1.001;
 
 class Ball extends GameObject {
     constructor(position, width, height, color, sheetCols) {
@@ -34,6 +34,12 @@ class Ball extends GameObject {
         this.velocity = this.velocity.normalize().times(ballSpeed);
         this.position = this.position.plus(this.velocity.times(deltaTime));
         this.updateCollider();
+        if(this.bricksLeft <= 0){
+            this.reset();
+            this.serve();
+            this.bricksLeft = 50;
+            this.level++;
+        }
     }
 
   reset(){
@@ -44,22 +50,16 @@ class Ball extends GameObject {
   }
     //start ball motion
   serve(){
-    //get a random angle between -Pi/2 and Pi/2
-    let angle = Math.random() * Math.PI / 2 - Math.PI / 4;
-    this.velocity = new Vector(Math.cos(angle), Math.sin(angle));
-    ballSpeed = initialSpeed;
-    //select random direction
-    if (Math.random() < 0.5) {
-        this.velocity.x *= -1;
+    //get a random angle always facing downwards
+    let angle = Math.random() * Math.PI / 2 + Math.PI / 4;
+    if (angle < 0 || angle > Math.PI) {
+        angle *= -1;
     }
-  }
-}
+                this.velocity = new Vector(Math.cos(angle), Math.sin(angle));
+                ballSpeed = initialSpeed;
+        }
+    }
 
-class Score extends GameObject{
-    constructor(position, width, height, color, sheetCols){
-        super(position, width, height, color, "score", sheetCols);
-    }
-}
 
 // Class for the main character in the game
 class Paddle extends GameObject {
@@ -69,21 +69,21 @@ class Paddle extends GameObject {
 
         // Structure with the directions the object can move
         this.motion = {
-            up: {
-                axis: "y",
+            left: {
+                axis: "x",
                 sign: -1,
             },
-            down: {
-                axis: "y",
+            right: {
+                axis: "x",
                 sign: 1,
             },
         }
 
         // Keys pressed to move the player
-        this.keys = [];
-    }
+            this.keys = [];
+        }
 
-    update(deltaTime) {
+        update(deltaTime) {
         // Restart the velocity
         this.velocity.x = 0;
         this.velocity.y = 0;
@@ -115,6 +115,12 @@ class Paddle extends GameObject {
     }
 }
 
+//class for bricks in game
+class Brick extends GameObject {
+    constructor(position, width, height, color, sheetCols) {
+        super(position, width, height, color, "brick", sheetCols);
+    }
+}
 
 // Class to keep track of all the events and objects in the game
 class Game {
@@ -126,13 +132,12 @@ class Game {
         this.ping = document.createElement("audio");
         this.ping.src = "../assets/audio/4387__noisecollector__pongblipe4.wav";
 
-        this.scoreLeft = 0;
-        this.scoreRight = 0;
+        this.score = 0;
+        this.level = 1;
 
         //score textlabel
-        this.scoreLabelLeftz = new TextLabel(canvasWidth / 4, 100, "40px Arial", "red");
-        this.scoreLabelRight = new TextLabel(3 * canvasWidth / 4, 100, "40px Arial", "blue");
-        this.timeLabel = new TextLabel(canvasWidth / 2 - 50, 100, "40px Arial", "black");
+        this.scoreLabel = new TextLabel(canvasWidth / 2 - 80, 60, "40px Arial", "red");
+        this.timeLabel = new TextLabel( 50, 60, "40px Arial", "black");
         //detect if were playing
         this.inPlay = false;
         //time imit for the game in milliseconds
@@ -141,44 +146,45 @@ class Game {
 
     // Create the objects in the game
     initObjects() {
-        this.paddleLeft = new Paddle(new Vector(50, canvasHeight / 2), 20, 130, "red");
-        this.paddleRight = new Paddle(new Vector(canvasWidth - 50, canvasHeight / 2), 20, 130, "blue");
+        this.paddle = new Paddle(new Vector(canvasWidth / 2, canvasHeight - 30), 130, 20, "red");
 
         this.ball = new Ball(new Vector(canvasWidth / 2, canvasHeight / 2), 20, 20, "black");
 
         this.wallUp = new GameObject(new Vector(canvasWidth / 2, 0), canvasWidth, 20, "yellow")
         this.wallDown = new GameObject(new Vector(canvasWidth / 2, canvasHeight), canvasWidth, 20, "yellow")
 
-        this.goalLeft = new GameObject(new Vector(0, canvasHeight / 2), 20, canvasHeight, "green")
-        this.goalRight = new GameObject(new Vector(canvasWidth, canvasHeight / 2), 20, canvasHeight, "green")
+        this.wallLeft = new GameObject(new Vector(0, canvasHeight / 2), 20, canvasHeight, "yellow")
+        this.wallRight = new GameObject(new Vector(canvasWidth, canvasHeight / 2), 20, canvasHeight, "yellow")
 
         this.bricks = [];
         let brickRows = 5;
         let brickCols = 10;
-        let brickWidth = (canvasWidth - 40) / brickCols;
+        let brickGap = 5;
+        let brickMarginX = 30;
+        let brickMarginTop = 100;
+        let brickWidth = Math.floor((canvasWidth - (2 * brickMarginX) - ((brickCols - 1) * brickGap)) / brickCols);
         let brickHeight = 30;
         for (let i = 0; i < brickRows; i++) {
             for (let j = 0; j < brickCols; j++) {
-                this.bricks.push(new Brick(new Vector(40 + j * brickWidth, 20 + i * brickHeight), brickWidth - 5, brickHeight - 5, "blue"));
+                let brickX = brickMarginX + (brickWidth / 2) + j * (brickWidth + brickGap);
+                let brickY = brickMarginTop + (brickHeight / 2) + i * (brickHeight + brickGap);
+                this.bricks.push(new Brick(new Vector(brickX, brickY), brickWidth, brickHeight, "blue"));
             }
         }
 
         this.actors = [
-            this.paddleLeft,
-            this.paddleRight,
+            this.paddle,
             this.ball,
+            this.wallLeft,
+            this.wallRight,
             this.wallUp,
             this.wallDown,
-            this.goalLeft,
-            this.goalRight
-
         ];
     }
 
     draw(ctx) {
             //draw scores
-        this.scoreLabelLeft.draw(ctx, `${this.scoreLeft}`);
-        this.scoreLabelRight.draw(ctx, `${this.scoreRight}`);
+        this.scoreLabel.draw(ctx, `Score: ${this.score}`);
 
         let mins = Math.floor(this.timeRemaining / 60000);
         let secs = Math.floor((this.timeRemaining % 60000) / 1000);
@@ -187,6 +193,10 @@ class Game {
         //draw actors
         for (let actor of this.actors) {
             actor.draw(ctx);
+        }
+        //draw bricks
+        for (let brick of this.bricks) {
+            brick.draw(ctx);
         }
     }
 
@@ -198,68 +208,75 @@ class Game {
             return;
         }
 
-        this.paddleLeft.update(deltaTime);
-        this.paddleRight.update(deltaTime);
+        this.paddle.update(deltaTime);
         this.ball.update(deltaTime);
 
         
 
-        if (boxOverlap(this.paddleLeft, this.ball) ||
-            boxOverlap(this.paddleRight, this.ball)){
+        if (boxOverlap(this.paddle, this.ball)){
+                this.ball.velocity.y *= -1;
+                ballSpeed *= speedIncrease;
+                this.ping.play();
+            }
+
+        if (boxOverlap(this.wallLeft, this.ball) ||
+            boxOverlap(this.wallRight, this.ball)){
                 this.ball.velocity.x *= -1;
                 ballSpeed *= speedIncrease;
                 this.ping.play();
             }
 
-        if (boxOverlap(this.wallDown, this.ball) ||
-            boxOverlap(this.wallUp, this.ball)){
+        if (boxOverlap(this.wallUp, this.ball)){
                 this.ball.velocity.y *= -1;
                 ballSpeed *= speedIncrease;
                 this.ping.play();
             }
-        if (boxOverlap(this.goalLeft, this.ball)) {
-                this.ball.reset();
-                this.scoreRight += 1;
-                this.inPlay = false;
-                this.ping.play();
+        if (boxOverlap(this.wallDown, this.ball)) {
+            this.ball.reset();
+            this.inPlay = false;
+            this.ping.play();
+        }
 
+        for (let brick of this.bricks) {
+            if (boxOverlap(this.ball, brick)) {
+                this.bricks.splice(this.bricks.indexOf(brick), 1);
+                this.ball.velocity.y *= -1;
+                ballSpeed *= speedIncrease;
+                this.score += 1;
+                this.ping.play();
+                break;
             }
-        if (boxOverlap(this.goalRight, this.ball)) {
-                this.ball.reset();
-                this.scoreLeft += 1;   
-                this.inPlay = false;         
-            }
-        
+        }
+
     }
 
     createEventListeners() {
         window.addEventListener('keydown', (event) => {
-            if (event.key == 'w') {
-                this.addKey('up', this.paddleLeft);
-            } if (event.key == 's') {
-                this.addKey('down', this.paddleLeft);
-            } if (event.key == 'ArrowUp') {
-                this.addKey('up', this.paddleRight);
-            } if (event.key == 'ArrowDown') {
-                this.addKey('down', this.paddleRight);
-            }
-
-            if (event.key == ' ') {
+            if (event.key == 'a') {
+                this.addKey('left', this.paddle);
+            } else if (event.key == 'd') {
+                this.addKey('right', this.paddle);
+            } else if (event.key == 'ArrowLeft') {
+                this.addKey('left', this.paddle);
+            } else if (event.key == 'ArrowRight') {
+                this.addKey('right', this.paddle);
+            } else if (event.key == ' ') {
                 if(!this.inPlay){
                 this.ball.serve();
                 this.inPlay = true;
+                }
             }
-        }        });
+        });
 
         window.addEventListener('keyup', (event) => {
-            if (event.key == 'w') {
-                this.delKey('up', this.paddleLeft);
-            } if (event.key == 's') {
-                this.delKey('down', this.paddleLeft);
-            } if (event.key == 'ArrowUp') {
-                this.delKey('up', this.paddleRight);
-            } if (event.key == 'ArrowDown') {
-                this.delKey('down', this.paddleRight);
+            if (event.key == 'a') {
+                this.delKey('left', this.paddle);
+            } else if (event.key == 'd') {
+                this.delKey('right', this.paddle);
+            } else if (event.key == 'ArrowLeft') {
+                this.delKey('left', this.paddle);
+            } else if (event.key == 'ArrowRight') {
+                this.delKey('right', this.paddle);
             }
         });
     }
@@ -279,7 +296,6 @@ class Game {
     }
 }
 
-
 // Starting function that will be called from the HTML page
 function main() {
     // Get a reference to the object with id 'canvas' in the page
@@ -296,7 +312,6 @@ function main() {
     drawScene(0);
 }
 
-
 // Main loop function to be called once per frame
 function drawScene(newTime) {
     // Compute the time elapsed since the last frame, in milliseconds
@@ -312,49 +327,3 @@ function drawScene(newTime) {
     oldTime = newTime;
     requestAnimationFrame(drawScene);
 }
-
-let cards = [
-    { name: "Ace of Spades",
-         value: 1 
-        },
-    { name: "2 of Hearts",
-         value: 2 
-        },
-    { name: "3 of Diamonds", 
-      value: 3,
-      image: "../assets/cards/3_of_diamonds.png"
-
-    },
-    { name: "4 of Clubs",
-         value: 4 
-        },
-    { name: "5 of Spades",
-         value: 5 
-        },
-    { name: "6 of Hearts",
-         value: 6 
-        },
-    { name: "7 of Diamonds", 
-      value: 7 
-
-    },
-    { name: "8 of Clubs",
-         value: 8 
-        },
-    { name: "9 of Spades",
-         value: 9 
-        },
-    { name: "10 of Hearts",
-         value: 10 
-        },
-    { name: "Jack of Diamonds", 
-      value: 11 
-
-    },
-    { name: "Queen of Clubs",
-         value: 12 
-        },
-    { name: "King of Spades",
-         value: 13 
-        }
-];
