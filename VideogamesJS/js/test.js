@@ -130,7 +130,7 @@ class Game {
         this.scoreRight = 0;
 
         //score textlabel
-        this.scoreLabelLeftz = new TextLabel(canvasWidth / 4, 100, "40px Arial", "red");
+        this.scoreLabelLeft = new TextLabel(canvasWidth / 4, 100, "40px Arial", "red");
         this.scoreLabelRight = new TextLabel(3 * canvasWidth / 4, 100, "40px Arial", "blue");
         this.timeLabel = new TextLabel(canvasWidth / 2 - 50, 100, "40px Arial", "black");
         //detect if were playing
@@ -152,17 +152,6 @@ class Game {
         this.goalLeft = new GameObject(new Vector(0, canvasHeight / 2), 20, canvasHeight, "green")
         this.goalRight = new GameObject(new Vector(canvasWidth, canvasHeight / 2), 20, canvasHeight, "green")
 
-        this.bricks = [];
-        let brickRows = 5;
-        let brickCols = 10;
-        let brickWidth = (canvasWidth - 40) / brickCols;
-        let brickHeight = 30;
-        for (let i = 0; i < brickRows; i++) {
-            for (let j = 0; j < brickCols; j++) {
-                this.bricks.push(new Brick(new Vector(40 + j * brickWidth, 20 + i * brickHeight), brickWidth - 5, brickHeight - 5, "blue"));
-            }
-        }
-
         this.actors = [
             this.paddleLeft,
             this.paddleRight,
@@ -171,7 +160,6 @@ class Game {
             this.wallDown,
             this.goalLeft,
             this.goalRight
-
         ];
     }
 
