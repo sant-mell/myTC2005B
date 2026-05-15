@@ -1,0 +1,48 @@
+* {
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+}
+
+body {
+    background-color: White;
+    width: 100vw;
+    height: 100vh;
+    box-sizing: border-box;
+    margin: 0;
+    overflow: hidden;
+    display: grid;
+    grid-template-rows: 10vh 1fr;
+    grid-template-columns: 1fr;
+    grid-template-areas:
+        "header"
+        "main";
+    justify-content: center;
+    align-items: center;
+    justify-items: center;
+}
+
+#headerContainer {
+    grid-area: header;
+    background-color: #3333AA;
+    color: #FFFFFF;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+}
+
+h1 {
+    margin: 0px;
+}
+
+canvas {
+    border: 2px solid black;
+    background-color: #87ceeb;
+}
+
+#canvas {
+    background-color: #87ceeb;
+    grid-area: main;
+}

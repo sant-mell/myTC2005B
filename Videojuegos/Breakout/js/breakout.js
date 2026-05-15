@@ -275,7 +275,7 @@ class Game {
             this.ball.update(deltaTime);
         }
 
-        if (boxOverlap(this.paddle, this.ball)) {// reset the ball to be on top
+        if (boxOverlap(this.paddle, this.ball)) {// reset the ball to be on top 
             this.ball.position.y = this.paddle.position.y - this.paddle.halfSize.y - this.ball.halfSize.y;
             this.ball.updateCollider();
             if (this.paddle.tiltLeft) {
