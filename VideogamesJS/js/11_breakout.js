@@ -37,7 +37,7 @@ class Ball extends GameObject {
     }
 
     reset() {
-        this.position.x = canvasWidth / 2;
+        this.position.x = canvasWidth / 2; //reset ball to middle 
         this.position.y = canvasHeight / 2;
         this.velocity.x = 0;
         this.velocity.y = 0;
@@ -61,8 +61,8 @@ class Paddle extends GameObject {
 
         // Structure with the directions the object can move
         this.motion = {
-            left: { axis: "x", sign: -1 },
-            right: { axis: "x", sign: 1 },
+            left: { axis: "x", sign: -1 }, //make it negative to move left in y
+            right: { axis: "x", sign: 1 }, //make it positive to move right in x
         }
 
         // Keys pressed to move the player
@@ -133,9 +133,9 @@ class Game {
         this.timeRemaining = 500000;
         //array of the themes of each level. each has its sprites and music
         this.themes = [
-            { bg: "../../VideogamesJS/assets/sprites/disco.jpg", ball: "../../VideogamesJS/assets/sprites/disco.gif", music: "../../VideogamesJS/assets/audio/disco.mp3" },
-            { bg: "../../VideogamesJS/assets/sprites/HipHop.jpg", ball: "../../VideogamesJS/assets/sprites/basketball", music: "../../VideogamesJS/assets/audio/hiphop no copyright.mp3" },
-            { bg: "../../VideogamesJS/assets/sprites/Rock&roll.jpg", ball: "../../VideogamesJS/assets/sprites/Vinyl", music: "../../VideogamesJS/assets/audio/rock.mp3" },
+            { bg: "../../VideogamesJS/assets/sprites/disco.jpg",     ball: "../../VideogamesJS/assets/sprites/disco.gif",  music: "../../VideogamesJS/assets/audio/disco.mp3" },
+            { bg: "../../VideogamesJS/assets/sprites/HipHop.jpg",    ball: "../../VideogamesJS/assets/sprites/basketball", music: "../../VideogamesJS/assets/audio/hiphop no copyright.mp3" },
+            { bg: "../../VideogamesJS/assets/sprites/Rock&roll.jpg", ball: "../../VideogamesJS/assets/sprites/Vinyl",      music: "../../VideogamesJS/assets/audio/rock.mp3" },
         ];
         //
         this.bgMusic = null;
@@ -235,9 +235,9 @@ class Game {
         for (let brick of this.bricks) {
             brick.draw(ctx);
         }
-// overlays for winning and losing states
+// overlays for winning and losing states; gameOverlay setup was ideated with the help of Claude and implemented by me
         if (this.gameOver) {
-            this.drawOverlay(ctx, "GAME OVER", "Press Space to restart");
+            this.drawOverlay(ctx, "GAME OVER", "Press Space to restart"); 
         } else if (this.won) {
             this.drawOverlay(ctx, "YOU WIN!", "Press Space to play again");
         }
