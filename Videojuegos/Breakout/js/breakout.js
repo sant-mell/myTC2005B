@@ -4,7 +4,7 @@
  * Santiago Aguilar Mello
  * 2025-05-15
  */
-//Game developmen was originally in videogamesJS and I created this folder for the final project. to see commits, theyre in VIdeogamesJS
+//Game developmen was originally in videogamesJS and I created this folder for the final project. to see commits, theyre in VideogamesJS
 "use strict";
 
 // Global variables
@@ -137,7 +137,7 @@ class Game {
         ];
         //
         this.bgMusic = null;
-
+        //OG pong audio
         this.ping = document.createElement("audio");
         this.ping.src = "../../VideogamesJS/assets/audio/4387__noisecollector__pongblipe4.wav";
         //All text labels in tgame
@@ -156,35 +156,41 @@ class Game {
 
         this.paddle = new Paddle(new Vector(canvasWidth / 2, canvasHeight - 30), 130, 20, "red");
         this.ball   = new Ball(new Vector(canvasWidth / 2, canvasHeight / 2), 20, 20, "black");
-        //it is part of the extra element; themes (along with the paddle tilting))
-        let theme = this.themes[(this.level - 1) % this.themes.length];
-        this.bgImage = new Image();
+
+        // make theme for each level with different sprites and music and themes
+        let theme;
+        if (this.themes && this.themes.length > 0) {
+            theme = this.themes[this.level - 1]; //get theme for level, -1 is sincce level starts at 1 but array at 0
+        } else {
+            theme = { bg: "", ball: "", music: "" }; //if theme not provided, it'll plain
+        }
+        this.bgImage = new Image(); //
         this.bgImage.src = theme.bg;
         this.ball.setSprite(theme.ball);
 
-        if (this.bgMusic) {
+        if (this.bgMusic) { // stop music if it is playing from last level
             this.bgMusic.pause();
             this.bgMusic.currentTime = 0;
         }
         this.bgMusic = document.createElement("audio");
         this.bgMusic.src = theme.music;
         this.bgMusic.loop = true;
-
-        this.wallUp    = new GameObject(new Vector(canvasWidth / 2, 0),           canvasWidth,  20, "yellow");
+//drawing walls in the game in a yellow colour
+        this.wallUp    = new GameObject(new Vector(canvasWidth / 2, 0),           canvasWidth,  20, "yellow"); 
         this.wallDown  = new GameObject(new Vector(canvasWidth / 2, canvasHeight), canvasWidth,  20, "yellow");
         this.wallLeft  = new GameObject(new Vector(0,               canvasHeight / 2), 20, canvasHeight, "yellow");
         this.wallRight = new GameObject(new Vector(canvasWidth,     canvasHeight / 2), 20, canvasHeight, "yellow");
 
         this.bricks = [];
-        // Start with 3 rows at level 1, add 1 row per level up to 5
+        // as said in canvas. begin with 3 rows at level 1, add 1 row per level up to 5
         let brickRows    = Math.min(2 + this.level, 5);
         let brickCols    = 10;
         let brickGap     = 5;
         let brickMarginX = 30;
         let brickMarginTop = 100;
-        let brickWidth   = Math.floor((canvasWidth - (2 * brickMarginX) - ((brickCols - 1) * brickGap)) / brickCols);
+        let brickWidth   = 70;
         let brickHeight  = 30;
-        for (let i = 0; i < brickRows; i++) {
+        for (let i = 0; i < brickRows; i++) {// loop to create all bricks based on rows and columns
             for (let j = 0; j < brickCols; j++) {
                 let brickX = brickMarginX + (brickWidth / 2) + j * (brickWidth + brickGap);
                 let brickY = brickMarginTop + (brickHeight / 2) + i * (brickHeight + brickGap);
@@ -275,20 +281,22 @@ class Game {
             this.ball.update(deltaTime);
         }
 
-        if (boxOverlap(this.paddle, this.ball)) {// reset the ball to be on top 
+        if (boxOverlap(this.paddle, this.ball)) {// reset the ball to be on top
             this.ball.position.y = this.paddle.position.y - this.paddle.halfSize.y - this.ball.halfSize.y;
             this.ball.updateCollider();
+            // main mechanig; if paddle tilter, it will bounce to that side at an angle of 30 degrees.
             if (this.paddle.tiltLeft) {
-                this.ball.velocity = new Vector(-1, -1);
+                this.ball.velocity = new Vector(-1, -1);//the vector will bounce left
             } else if (this.paddle.tiltRight) {
-                this.ball.velocity = new Vector(1, -1);
+                this.ball.velocity = new Vector(1, -1); //the vector will change to bounve to the right
             } else {
+                //if it is not tilted, it just goes up
                 this.ball.velocity.y *= -1;
             }
             ballSpeed *= speedIncrease;
             this.ping.play();
         }
-
+        // check collisions on walls to bounce. bottom and sides
         if (boxOverlap(this.wallLeft, this.ball)) {
             this.ball.velocity.x *= -1;
             ballSpeed *= speedIncrease;
@@ -304,7 +312,7 @@ class Game {
             ballSpeed *= speedIncrease;
             this.ping.play();
         }
-
+// if it overlaps on the bottom, you lose a life and will reset the ball
         if (boxOverlap(this.wallDown, this.ball)) {
             this.ball.reset();
             this.gameState = "waiting";
