@@ -37,7 +37,7 @@ class Ball extends GameObject {
     }
 
     reset() {
-        this.position.x = canvasWidth / 2;
+        this.position.x = canvasWidth / 2; //reset ball to middle 
         this.position.y = canvasHeight / 2;
         this.velocity.x = 0;
         this.velocity.y = 0;
@@ -61,13 +61,13 @@ class Paddle extends GameObject {
 
         // Structure with the directions the object can move
         this.motion = {
-            left:  { axis: "x", sign: -1 },
-            right: { axis: "x", sign:  1 },
+            left: { axis: "x", sign: -1 },
+            right: { axis: "x", sign: 1 },
         }
 
         // Keys pressed to move the player
         this.keys = [];
-
+        // tilting for paddle
         this.tilt = 0;
         this.tiltLeft = false;
         this.tiltRight = false;
@@ -87,8 +87,8 @@ class Paddle extends GameObject {
         this.position = this.position.plus(this.velocity.times(deltaTime));
 
         this.tilt = 0;
-        if (this.tiltLeft)  this.tilt = -Math.PI / 6;
-        if (this.tiltRight) this.tilt =  Math.PI / 6;
+        if (this.tiltLeft) this.tilt = -Math.PI / 6; //tilt left 30 degrees
+        if (this.tiltRight) this.tilt = Math.PI / 6; //same for right
 
         this.clampWithinCanvas();
         this.updateCollider();
@@ -127,13 +127,15 @@ class Game {
         this.lives = 3;
         this.bricksDestroyed = 0;
         //there are three states. waiting, playinh and gameOver.
-        this.gameState = "waiting";
+        this.inPlay = false;
+        this.gameOver = false;
+        this.won = false;
         this.timeRemaining = 500000;
         //array of the themes of each level. each has its sprites and music
         this.themes = [
-            { bg: "../../VideogamesJS/assets/sprites/disco.jpg",     ball: "../../VideogamesJS/assets/sprites/disco.gif",  music: "../../VideogamesJS/assets/audio/disco.mp3" },
-            { bg: "../../VideogamesJS/assets/sprites/HipHop.jpg",    ball: "../../VideogamesJS/assets/sprites/basketball", music: "../../VideogamesJS/assets/audio/hiphop no copyright.mp3" },
-            { bg: "../../VideogamesJS/assets/sprites/Rock&roll.jpg", ball: "../../VideogamesJS/assets/sprites/Vinyl",      music: "../../VideogamesJS/assets/audio/rock.mp3" },
+            { bg: "../../VideogamesJS/assets/sprites/disco.jpg", ball: "../../VideogamesJS/assets/sprites/disco.gif", music: "../../VideogamesJS/assets/audio/disco.mp3" },
+            { bg: "../../VideogamesJS/assets/sprites/HipHop.jpg", ball: "../../VideogamesJS/assets/sprites/basketball", music: "../../VideogamesJS/assets/audio/hiphop no copyright.mp3" },
+            { bg: "../../VideogamesJS/assets/sprites/Rock&roll.jpg", ball: "../../VideogamesJS/assets/sprites/Vinyl", music: "../../VideogamesJS/assets/audio/rock.mp3" },
         ];
         //
         this.bgMusic = null;
@@ -141,10 +143,10 @@ class Game {
         this.ping = document.createElement("audio");
         this.ping.src = "../../VideogamesJS/assets/audio/4387__noisecollector__pongblipe4.wav";
         //All text labels in tgame
-        this.blocksLabel = new TextLabel(canvasWidth / 2 - 100, 60, "40px Arial", "red");
-        this.timeLabel   = new TextLabel(50, 60, "40px Arial", "black");
-        this.liveLabel   = new TextLabel(canvasWidth - 150, 60, "40px Arial", "green");
-        this.levelLabel  = new TextLabel(50, 550, "40px Arial", "blue");
+        this.blocksLabel = new TextLabel(canvasWidth / 2 - 100, 60, "40px Arial", "red"); // label for blocks destroyed on top middle
+        this.timeLabel = new TextLabel(50, 60, "40px Arial", "black"); // label for time left on top left
+        this.liveLabel = new TextLabel(canvasWidth - 150, 60, "40px Arial", "green"); //label for lives left on top right
+        this.levelLabel = new TextLabel(50, 550, "40px Arial", "blue"); //label for level on bottom left
 
         this.createEventListeners();
         this.initObjects();
@@ -152,19 +154,14 @@ class Game {
 
     // Create the objects in the game
     initObjects() {
-        this.gameState = "waiting";
+        this.inPlay = false;
 
         this.paddle = new Paddle(new Vector(canvasWidth / 2, canvasHeight - 30), 130, 20, "red");
-        this.ball   = new Ball(new Vector(canvasWidth / 2, canvasHeight / 2), 20, 20, "black");
+        this.ball = new Ball(new Vector(canvasWidth / 2, canvasHeight / 2), 20, 20, "black");
 
-        // make theme for each level with different sprites and music and themes
-        let theme;
-        if (this.themes && this.themes.length > 0) {
-            theme = this.themes[this.level - 1]; //get theme for level, -1 is sincce level starts at 1 but array at 0
-        } else {
-            theme = { bg: "", ball: "", music: "" }; //if theme not provided, it'll plain
-        }
-        this.bgImage = new Image(); //
+        //set themes for level w background and music
+        let theme = this.themes[this.level - 1]; //get theme for level, -1 sincce level starts at 1 but array at 0
+        this.bgImage = new Image();
         this.bgImage.src = theme.bg;
         this.ball.setSprite(theme.ball);
 
@@ -176,20 +173,20 @@ class Game {
         this.bgMusic.src = theme.music;
         this.bgMusic.loop = true;
 //drawing walls in the game in a yellow colour
-        this.wallUp    = new GameObject(new Vector(canvasWidth / 2, 0),           canvasWidth,  20, "yellow"); 
-        this.wallDown  = new GameObject(new Vector(canvasWidth / 2, canvasHeight), canvasWidth,  20, "yellow");
-        this.wallLeft  = new GameObject(new Vector(0,               canvasHeight / 2), 20, canvasHeight, "yellow");
-        this.wallRight = new GameObject(new Vector(canvasWidth,     canvasHeight / 2), 20, canvasHeight, "yellow");
+        this.wallUp = new GameObject(new Vector(canvasWidth / 2, 0), canvasWidth, 20, "yellow");
+        this.wallDown = new GameObject(new Vector(canvasWidth / 2, canvasHeight), canvasWidth, 20, "yellow");
+        this.wallLeft = new GameObject(new Vector(0, canvasHeight / 2), 20, canvasHeight, "yellow");
+        this.wallRight = new GameObject(new Vector(canvasWidth, canvasHeight / 2), 20, canvasHeight, "yellow");
 
         this.bricks = [];
         // as said in canvas. begin with 3 rows at level 1, add 1 row per level up to 5
-        let brickRows    = Math.min(2 + this.level, 5);
-        let brickCols    = 10;
-        let brickGap     = 5;
+        let brickRows = Math.min(2 + this.level, 5);
+        let brickCols = 10;
+        let brickGap = 5;
         let brickMarginX = 30;
         let brickMarginTop = 100;
-        let brickWidth   = 70;
-        let brickHeight  = 30;
+        let brickWidth = 70;
+        let brickHeight = 30;
         for (let i = 0; i < brickRows; i++) {// loop to create all bricks based on rows and columns
             for (let j = 0; j < brickCols; j++) {
                 let brickX = brickMarginX + (brickWidth / 2) + j * (brickWidth + brickGap);
@@ -214,6 +211,8 @@ class Game {
         this.lives = 3;
         this.bricksDestroyed = 0;
         this.timeRemaining = 500000;
+        this.gameOver = false;
+        this.won = false;
         this.initObjects();
     }
 
@@ -223,8 +222,8 @@ class Game {
         }
 
         this.blocksLabel.draw(ctx, `Blocks: ${this.bricksDestroyed}`);
-        this.liveLabel.draw(ctx,   `Lives: ${this.lives}`);
-        this.levelLabel.draw(ctx,  `Level: ${this.level}`);
+        this.liveLabel.draw(ctx, `Lives: ${this.lives}`);
+        this.levelLabel.draw(ctx, `Level: ${this.level}`);
 
         let mins = Math.floor(this.timeRemaining / 60000);
         let secs = Math.floor((this.timeRemaining % 60000) / 1000);
@@ -236,10 +235,10 @@ class Game {
         for (let brick of this.bricks) {
             brick.draw(ctx);
         }
-// overlays for winning and losing states
-        if (this.gameState === "gameOver") {
-            this.drawOverlay(ctx, "GAME OVER", "Press Space to restart");
-        } else if (this.gameState === "win") {
+// overlays for winning and losing states; gameOverlay setup was ideated with the help of Claude and implemented by me
+        if (this.gameOver) {
+            this.drawOverlay(ctx, "GAME OVER", "Press Space to restart"); 
+        } else if (this.won) {
             this.drawOverlay(ctx, "YOU WIN!", "Press Space to play again");
         }
     }
@@ -263,21 +262,19 @@ class Game {
 
     update(deltaTime) {
         // Pause all updates while showing end screens
-        if (this.gameState === "gameOver") {
-            return;
-        } else if (this.gameState === "win") {// stop music if won
+        if (this.gameOver || this.won) {
             return;
         }
 // decrease time and check game over w time
         this.timeRemaining -= deltaTime;
         if (this.timeRemaining <= 0) {
             this.timeRemaining = 0;
-            this.gameState = "gameOver";
+            this.gameOver = true;
             return;
         }
 
         this.paddle.update(deltaTime);
-        if (this.gameState === "playing") {
+        if (this.inPlay) {
             this.ball.update(deltaTime);
         }
 
@@ -315,20 +312,20 @@ class Game {
 // if it overlaps on the bottom, you lose a life and will reset the ball
         if (boxOverlap(this.wallDown, this.ball)) {
             this.ball.reset();
-            this.gameState = "waiting";
+            this.inPlay = false;
             this.lives--;
             this.ping.play();
         }
 // game over scren when loves reach 0
         if (this.lives <= 0) {
-            this.gameState = "gameOver";
+            this.gameOver = true;
             return;
         }
 
         // winstate  after clearing level 3
         if (this.bricks.length === 0) {
             if (this.level >= 3) {
-                this.gameState = "win";
+                this.won = true;
             } else {
                 this.level++;
                 this.initObjects();
@@ -366,18 +363,16 @@ class Game {
             } else if (event.key == 'ArrowRight') {
                 this.paddle.tiltRight = true;
             } else if (event.key == ' ') {
-                if (this.gameState === "gameOver") {
+                if (this.gameOver || this.won) {
                     this.resetGame();
-                } else if (this.gameState === "win") {
-                    this.resetGame();
-                } else if (this.gameState === "waiting") {
+                } else if (!this.inPlay) {
                     this.ball.serve();
-                    this.gameState = "playing";
+                    this.inPlay = true;
                     this.bgMusic.play();
                 }
             }
         });
-        // 
+    
         window.addEventListener('keyup', (event) => {
             if (event.key == 'a') {
                 this.delKey('left', this.paddle);
