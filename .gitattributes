@@ -1,5 +1,4 @@
-# Vendored third-party Unity assets (TextMesh Pro) should not skew language stats.
+# Vendored third-party Unity assets (TextMesh Pro, etc.) should not skew language stats.
 *.shader linguist-vendored
 *.cginc linguist-vendored
 *.meta linguist-generated
-**/TextMesh[ ]Pro/** linguist-vendored
