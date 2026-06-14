@@ -1,0 +1,16 @@
+
+# Dependencies (regenerable)
+node_modules/
+**/node_modules/
+
+# OS / editor junk
+.DS_Store
+*.swp
+Thumbs.db
+
+# Unity generated folders
+[Ll]ibrary/
+[Tt]emp/
+[Oo]bj/
+[Bb]uild/
+[Ll]ogs/
