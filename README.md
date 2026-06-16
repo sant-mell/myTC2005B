@@ -22,6 +22,20 @@ Source: [Videojuegos/Breakout](Videojuegos/Breakout)
 | Tilt paddle | Left and right arrows |
 | Start and restart | Space |
 
+## Game loop
+
+The engine drives every game with a delta-time loop: time elapsed since the last
+frame scales all movement, so physics stay consistent regardless of frame rate.
+
+```mermaid
+flowchart LR
+    A[requestAnimationFrame] --> B[compute deltaTime]
+    B --> C[update<br/>positions, velocity x dt]
+    C --> D[collision detection<br/>paddle, walls, bricks]
+    D --> E[draw<br/>clear + render objects]
+    E --> A
+```
+
 ## Repository layout
 
 | Path | Contents |
