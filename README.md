@@ -29,10 +29,10 @@ frame scales all movement, so physics stay consistent regardless of frame rate.
 
 ```mermaid
 flowchart LR
-    A[requestAnimationFrame] --> B[compute deltaTime]
-    B --> C[update<br/>positions, velocity x dt]
-    C --> D[collision detection<br/>paddle, walls, bricks]
-    D --> E[draw<br/>clear + render objects]
+    A["requestAnimationFrame"] --> B["compute deltaTime"]
+    B --> C["update positions, velocity x dt"]
+    C --> D["collision detection: paddle, walls, bricks"]
+    D --> E["draw: clear and render objects"]
     E --> A
 ```
 
